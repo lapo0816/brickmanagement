@@ -3,69 +3,65 @@ package com.brick.productivity.brickmanagement.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.validation.Valid;
 
 import com.brick.productivity.brickmanagement.exception.ResourceNotFoundException;
 import com.brick.productivity.brickmanagement.model.Employee;
 import com.brick.productivity.brickmanagement.repository.EmployeeRepository;
+import com.brick.productivity.brickmanagement.servie.EmployeeService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("${brick-management.publicPrefix}/employee/")
 public class EmployeeController {
-	@Autowired
-	private EmployeeRepository employeeRepository;
 
-	@GetMapping("/employees")
+	@Autowired
+	private EmployeeService employeeService;
+
+	@GetMapping(value = "/all",produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(httpMethod = "GET", value = "Get All Employee")
 	public List<Employee> getAllEmployees() {
-		return employeeRepository.findAll();
+		return employeeService.getAllEmployees();
 	}
 
 	@GetMapping("/employees/{id}")
-	public ResponseEntity<Employee> getEmployeeById(@PathVariable(value = "id") Long employeeId)
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(httpMethod = "GET", value = "Get Employee Id")
+	public ResponseEntity<Employee> getEmployeeById(@PathVariable(value = "id") UUID employeeId)
 			throws ResourceNotFoundException {
-		Employee employee = employeeRepository.findById(employeeId)
-				.orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id :: " + employeeId));
+		Employee employee = employeeService.getEmployeeById(employeeId);
 		return ResponseEntity.ok().body(employee);
 	}
 
 	@PostMapping("/employees")
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(httpMethod = "POST", value = "Create Employee")
 	public Employee createEmployee(@Valid @RequestBody Employee employee) {
-		return employeeRepository.save(employee);
+		return employeeService.createEmployee(employee);
 	}
 
 	@PutMapping("/employees/{id}")
-	public ResponseEntity<Employee> updateEmployee(@PathVariable(value = "id") Long employeeId,
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(httpMethod = "PUT", value = "Update Employee By Id")
+	public ResponseEntity<Employee> updateEmployee(@PathVariable(value = "id") UUID employeeId,
 			@Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException {
-		Employee employee = employeeRepository.findById(employeeId)
-				.orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id :: " + employeeId));
-
-		employee.setEmailId(employeeDetails.getEmailId());
-		employee.setLastName(employeeDetails.getLastName());
-		employee.setFirstName(employeeDetails.getFirstName());
-		final Employee updatedEmployee = employeeRepository.save(employee);
+		Employee updatedEmployee = employeeService.updateEmployee(employeeId , employeeDetails);
 		return ResponseEntity.ok(updatedEmployee);
 	}
 
 	@DeleteMapping("/employees/{id}")
-	public Map<String, Boolean> deleteEmployee(@PathVariable(value = "id") Long employeeId)
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(httpMethod = "DELETE", value = "Delete Employee By Id")
+	public Map<String, Boolean> deleteEmployee(@PathVariable(value = "id") UUID employeeId)
 			throws ResourceNotFoundException {
-		Employee employee = employeeRepository.findById(employeeId)
-				.orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id :: " + employeeId));
-
-		employeeRepository.delete(employee);
-		Map<String, Boolean> response = new HashMap<>();
-		response.put("deleted", Boolean.TRUE);
-		return response;
+		return  employeeService.deleteEmployee(employeeId);
 	}
 }

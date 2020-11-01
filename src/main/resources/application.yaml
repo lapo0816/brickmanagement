@@ -1,6 +1,9 @@
 server:
   port: 9090
 
+brick-management:
+  publicPrefix: '/brick-management/v1'
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver

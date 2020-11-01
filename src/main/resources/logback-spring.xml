@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty name="logDir" source="logging.path"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="rolling file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
+                <expression>formattedMessage.contains("DMN-01006 Unsupported type 'object' for clause")</expression>
+            </evaluator>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <immediateFlush>true</immediateFlush>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${logDir}/billops.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>45</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %level ${PID:- } --- [%t] %logger:%line : %replace(%msg){'[\n\r]',''}%n
+            </pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="execution files" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>file</key>
+            <defaultValue>default</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="${file}" class="ch.qos.logback.core.FileAppender">
+                <file>${file}.log</file>
+                <append>false</append>
+                <layout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%msg%n</pattern>
+                    <!--                    %-15(%-5level %X{marker}) : %msg%n-->
+                </layout>
+            </appender>
+        </sift>
+    </appender>
+
+    <appender name="access log" class="ch.qos.logback.core.FileAppender">
+        <file>${logDir}/access.log</file>
+        <append>true</append>
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="rolling file"/>
+        <appender-ref ref="console"/>
+    </root>
+    <logger name="org.springframework.security.oauth2.provider.token.store.JdbcTokenStore" level="WARN"/>
+    <logger name="executionLogger" level="ALL" additivity="false">
+        <appender-ref ref="execution files"/>
+    </logger>
+    <logger name="org.springframework.security.oauth2.provider.token.store.JdbcTokenStore" level="WARN"/>
+
+    <logger name="accessLogger" level="ALL" additivity="false">
+        <appender-ref ref="access log"/>
+    </logger>
+
+</configuration>
