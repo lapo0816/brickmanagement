@@ -21,7 +21,7 @@
         <immediateFlush>true</immediateFlush>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>${logDir}/billops.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logDir}/brickmanagement.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>45</maxHistory>
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>

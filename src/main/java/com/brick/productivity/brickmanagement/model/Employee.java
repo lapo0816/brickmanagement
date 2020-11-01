@@ -12,9 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.UUID;
+import static  com.brick.productivity.brickmanagement.utils.DataBaseTableNames.EMPLOYEE;
 
 @Entity
-@Table(name = "employees")
+@Table(name = EMPLOYEE)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

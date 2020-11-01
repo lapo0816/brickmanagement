@@ -47,8 +47,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setEmailId(employeeDetails.getEmailId());
         employee.setLastName(employeeDetails.getLastName());
         employee.setFirstName(employeeDetails.getFirstName());
-        final Employee updatedEmployee = employeeRepository.save(employee);
-        return updatedEmployee;
+        return employeeRepository.save(employee);
     }
 
     @Override
